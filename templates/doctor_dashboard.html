@@ -13,8 +13,17 @@ header{ background:#0d6efd; color:white; padding:20px; text-align:center; }
   color:white; text-decoration:none; border-radius:5px; font-weight:bold;
 }
 .btn:hover{ background:#0a58ca; }
-.btn-form{ width:100%; padding:10px 20px; background:#0d6efd; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size:14px; }
-.btn-form:hover{ background:#0a58ca; }
+.btn-form{ width:100%; padding:10px 20px; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size:14px; }
+.btn-available{ background:#20c997; }
+.btn-available:hover{ background:#17a589; }
+.btn-unavailable{ background:#6c757d; }
+.btn-unavailable:hover{ background:#565e64; }
+.status-badge{
+  display:inline-block; padding:5px 14px; border-radius:20px;
+  font-size:13px; font-weight:bold; margin-bottom:14px;
+}
+.badge-green{ background:#d4edda; color:#155724; }
+.badge-gray{ background:#e2e3e5; color:#383d41; }
 .logout{ text-align:center; margin-top:50px; }
 .logout a{ color:red; font-weight:bold; text-decoration:none; }
 </style>
@@ -39,8 +48,15 @@ header{ background:#0d6efd; color:white; padding:20px; text-align:center; }
   </div>
   <div class="card">
     <h3>My Availability</h3>
+    {% if available %}
+      <div class="status-badge badge-green">&#10003; Available</div>
+    {% else %}
+      <div class="status-badge badge-gray">&#10005; Not Available</div>
+    {% endif %}
     <form method="POST" action="/doctor/toggle-availability">
-      <button type="submit" class="btn-form">Toggle Availability</button>
+      <button type="submit" class="btn-form {% if available %}btn-unavailable{% else %}btn-available{% endif %}">
+        {% if available %}Mark as Unavailable{% else %}Mark as Available{% endif %}
+      </button>
     </form>
   </div>
 </div>
