@@ -14,10 +14,10 @@ header{ background:#0d6efd; color:white; padding:20px; text-align:center; }
 }
 .btn:hover{ background:#0a58ca; }
 .btn-form{ width:100%; padding:10px 20px; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size:14px; }
-.btn-available{ background:#20c997; }
-.btn-available:hover{ background:#17a589; }
-.btn-unavailable{ background:#6c757d; }
-.btn-unavailable:hover{ background:#565e64; }
+.btn-green{ background:#20c997; }
+.btn-green:hover{ background:#17a589; }
+.btn-gray{ background:#6c757d; }
+.btn-gray:hover{ background:#565e64; }
 .status-badge{
   display:inline-block; padding:5px 14px; border-radius:20px;
   font-size:13px; font-weight:bold; margin-bottom:14px;
@@ -50,14 +50,17 @@ header{ background:#0d6efd; color:white; padding:20px; text-align:center; }
     <h3>My Availability</h3>
     {% if available %}
       <div class="status-badge badge-green">&#10003; Available</div>
+      <form method="POST" action="/doctor/toggle-availability">
+        <input type="hidden" name="new_value" value="0">
+        <button type="submit" class="btn-form btn-gray">Mark as Unavailable</button>
+      </form>
     {% else %}
       <div class="status-badge badge-gray">&#10005; Not Available</div>
+      <form method="POST" action="/doctor/toggle-availability">
+        <input type="hidden" name="new_value" value="1">
+        <button type="submit" class="btn-form btn-green">Mark as Available</button>
+      </form>
     {% endif %}
-    <form method="POST" action="/doctor/toggle-availability">
-      <button type="submit" class="btn-form {% if available %}btn-unavailable{% else %}btn-available{% endif %}">
-        {% if available %}Mark as Unavailable{% else %}Mark as Available{% endif %}
-      </button>
-    </form>
   </div>
 </div>
 <div class="logout">
