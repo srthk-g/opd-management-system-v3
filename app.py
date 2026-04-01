@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from flask import Flask, render_template, request, redirect, session, url_for
 import sqlite3
 import hashlib
 import os
@@ -6,7 +6,8 @@ import os
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "opd_secret_key_change_in_prod")
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "hospital.db")
+# Always resolve DB relative to current working directory (where gunicorn is launched)
+DB_PATH = os.path.join(os.getcwd(), "hospital.db")
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -90,8 +91,6 @@ def patient_dashboard():
     beds_row = db.execute("SELECT total, available FROM beds").fetchone()
     total_beds = beds_row["total"] if beds_row else 0
     available_beds = beds_row["available"] if beds_row else 0
-
-    # Check if this patient already has an active bed booking
     existing_booking = db.execute(
         "SELECT * FROM bed_bookings WHERE patient_id=? AND status='Active'",
         (session["patient_id"],)
@@ -112,10 +111,7 @@ def patient_dashboard():
 def bed_book():
     if "patient_id" not in session:
         return redirect(url_for("login_patient"))
-
     db = get_db()
-
-    # Check already has active booking
     existing = db.execute(
         "SELECT * FROM bed_bookings WHERE patient_id=? AND status='Active'",
         (session["patient_id"],)
@@ -123,16 +119,13 @@ def bed_book():
     if existing:
         db.close()
         return redirect(url_for("patient_dashboard"))
-
     beds_row = db.execute("SELECT available FROM beds").fetchone()
     if not beds_row or beds_row["available"] <= 0:
         db.close()
         return render_template("bed_confirmation.html", success=False,
                                message="No beds available at this time.")
-
     ward = request.form.get("ward", "General")
     admission_date = request.form.get("admission_date", "")
-
     db.execute(
         "INSERT INTO bed_bookings (patient_id, ward, admission_date, status) VALUES (?, ?, ?, 'Active')",
         (session["patient_id"], ward, admission_date)
@@ -198,8 +191,13 @@ def doctor_dashboard():
            ORDER BY a.date, a.time""",
         (session["doctor_id"],)
     ).fetchall()
+    doctor = db.execute(
+        "SELECT available FROM doctors WHERE id=?",
+        (session["doctor_id"],)
+    ).fetchone()
     db.close()
-    return render_template("doctor_dashboard.html", appointments=appointments)
+    available = doctor["available"] if doctor else 0
+    return render_template("doctor_dashboard.html", appointments=appointments, available=available)
 
 
 # ── Doctor sub-pages ─────────────────────────────────────
@@ -228,10 +226,10 @@ def doctor_add_visit():
     db = get_db()
     saved = None
     if request.method == "POST":
-        patient_id  = request.form.get("patient_id")
-        visit_date  = request.form.get("visit_date")
-        diagnosis   = request.form.get("diagnosis", "").strip()
-        notes       = request.form.get("notes", "").strip()
+        patient_id = request.form.get("patient_id")
+        visit_date = request.form.get("visit_date")
+        diagnosis  = request.form.get("diagnosis", "").strip()
+        notes      = request.form.get("notes", "").strip()
         db.execute(
             "INSERT INTO visits (doctor_id, patient_id, visit_date, diagnosis, notes) VALUES (?,?,?,?,?)",
             (session["doctor_id"], patient_id, visit_date, diagnosis, notes)
@@ -265,10 +263,12 @@ def doctor_patient_records():
 def toggle_availability():
     if "doctor_id" not in session:
         return redirect(url_for("login_doctor"))
+    # Read the desired new value sent explicitly from the form
+    new_value = int(request.form.get("new_value", 1))
     db = get_db()
     db.execute(
-        "UPDATE doctors SET available = CASE WHEN available=1 THEN 0 ELSE 1 END WHERE id=?",
-        (session["doctor_id"],)
+        "UPDATE doctors SET available=? WHERE id=?",
+        (new_value, session["doctor_id"])
     )
     db.commit()
     db.close()
@@ -325,10 +325,10 @@ def inventory():
 def inventory_add():
     if not session.get("inventory_manager"):
         return redirect(url_for("login_inventory"))
-    name = request.form.get("name", "").strip()
+    name     = request.form.get("name", "").strip()
     quantity = int(request.form.get("quantity", 0))
-    unit = request.form.get("unit", "units").strip()
-    status = compute_status(quantity)
+    unit     = request.form.get("unit", "units").strip()
+    status   = compute_status(quantity)
     if name:
         db = get_db()
         db.execute(

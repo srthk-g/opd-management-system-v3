@@ -6,7 +6,7 @@ import sqlite3
 import hashlib
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "hospital.db")
+DB_PATH = os.path.join(os.getcwd(), "hospital.db")
 
 def h(p):
     return hashlib.sha256(p.encode()).hexdigest()
