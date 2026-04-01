@@ -58,6 +58,15 @@ CREATE TABLE inventory (
     status        TEXT    NOT NULL DEFAULT 'In Stock'
 );
 
+CREATE TABLE visits (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    doctor_id     INTEGER NOT NULL REFERENCES doctors(id),
+    patient_id    INTEGER NOT NULL REFERENCES patients(id),
+    visit_date    TEXT    NOT NULL,
+    diagnosis     TEXT    NOT NULL,
+    notes         TEXT
+);
+
 CREATE TABLE inventory_managers (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     manager_id    TEXT    NOT NULL UNIQUE,

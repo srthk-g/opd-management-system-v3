@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>View Appointments</title>
+<style>
+body{ font-family:Arial; margin:0; background:#f4f6f9; }
+header{ background:#0d6efd; color:white; padding:20px; text-align:center; }
+.container{ max-width:800px; margin:40px auto; padding:0 20px; }
+h2{ color:#0d6efd; margin-bottom:20px; }
+table{ width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+th{ background:#0d6efd; color:white; padding:14px 16px; text-align:left; }
+td{ padding:13px 16px; border-bottom:1px solid #e9ecef; }
+tr:last-child td{ border-bottom:none; }
+tr:nth-child(even) td{ background:#f8f9fa; }
+.no-data{ text-align:center; padding:40px; color:#6c757d; font-size:15px; }
+.back{ display:inline-block; margin-bottom:20px; color:#0d6efd; text-decoration:none; font-weight:bold; }
+.back:hover{ text-decoration:underline; }
+.logout{ text-align:center; margin-top:40px; }
+.logout a{ color:red; font-weight:bold; text-decoration:none; }
+</style>
+</head>
+<body>
+<header>
+<h1>Doctor Dashboard</h1>
+<p>Hospital Management System</p>
+</header>
+<div class="container">
+<a class="back" href="/doctor/dashboard">&#8592; Back to Dashboard</a>
+<h2>My Appointments</h2>
+{% if appointments %}
+<table>
+  <tr>
+    <th>#</th>
+    <th>Patient Name</th>
+    <th>Date</th>
+    <th>Time</th>
+  </tr>
+  {% for a in appointments %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ a['name'] }}</td>
+    <td>{{ a['date'] }}</td>
+    <td>{{ a['time'] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="no-data">No appointments scheduled yet.</div>
+{% endif %}
+</div>
+<div class="logout"><a href="/logout">Logout</a></div>
+</body>
+</html>

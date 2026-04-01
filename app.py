@@ -202,6 +202,79 @@ def doctor_dashboard():
     return render_template("doctor_dashboard.html", appointments=appointments)
 
 
+# ── Doctor sub-pages ─────────────────────────────────────
+
+@app.route("/doctor/appointments")
+def doctor_appointments():
+    if "doctor_id" not in session:
+        return redirect(url_for("login_doctor"))
+    db = get_db()
+    appointments = db.execute(
+        """SELECT p.name, a.date, a.time
+           FROM appointments a
+           JOIN patients p ON a.patient_id=p.id
+           WHERE a.doctor_id=?
+           ORDER BY a.date, a.time""",
+        (session["doctor_id"],)
+    ).fetchall()
+    db.close()
+    return render_template("doctor_appointments.html", appointments=appointments)
+
+
+@app.route("/doctor/add-visit", methods=["GET", "POST"])
+def doctor_add_visit():
+    if "doctor_id" not in session:
+        return redirect(url_for("login_doctor"))
+    db = get_db()
+    saved = None
+    if request.method == "POST":
+        patient_id  = request.form.get("patient_id")
+        visit_date  = request.form.get("visit_date")
+        diagnosis   = request.form.get("diagnosis", "").strip()
+        notes       = request.form.get("notes", "").strip()
+        db.execute(
+            "INSERT INTO visits (doctor_id, patient_id, visit_date, diagnosis, notes) VALUES (?,?,?,?,?)",
+            (session["doctor_id"], patient_id, visit_date, diagnosis, notes)
+        )
+        db.commit()
+        patient = db.execute("SELECT name FROM patients WHERE id=?", (patient_id,)).fetchone()
+        saved = patient["name"] if patient else "Patient"
+    patients = db.execute("SELECT id, name, phone FROM patients ORDER BY name").fetchall()
+    db.close()
+    return render_template("doctor_add_visit.html", patients=patients, saved=saved)
+
+
+@app.route("/doctor/patient-records")
+def doctor_patient_records():
+    if "doctor_id" not in session:
+        return redirect(url_for("login_doctor"))
+    db = get_db()
+    records = db.execute(
+        """SELECT p.name AS patient_name, v.visit_date, v.diagnosis, v.notes
+           FROM visits v
+           JOIN patients p ON v.patient_id=p.id
+           WHERE v.doctor_id=?
+           ORDER BY v.visit_date DESC""",
+        (session["doctor_id"],)
+    ).fetchall()
+    db.close()
+    return render_template("doctor_patient_records.html", records=records)
+
+
+@app.route("/doctor/toggle-availability", methods=["POST"])
+def toggle_availability():
+    if "doctor_id" not in session:
+        return redirect(url_for("login_doctor"))
+    db = get_db()
+    db.execute(
+        "UPDATE doctors SET available = CASE WHEN available=1 THEN 0 ELSE 1 END WHERE id=?",
+        (session["doctor_id"],)
+    )
+    db.commit()
+    db.close()
+    return redirect(url_for("doctor_dashboard"))
+
+
 # ── Appointments ─────────────────────────────────────────
 
 @app.route("/book", methods=["POST"])
@@ -273,19 +346,7 @@ def inventory_add():
 def logout():
     session.clear()
     return redirect(url_for("home"))
-    
-@app.route("/doctor/toggle-availability", methods=["POST"])
-def toggle_availability():
-    if "doctor_id" not in session:
-        return redirect(url_for("login_doctor"))
-    db = get_db()
-    db.execute(
-        "UPDATE doctors SET available = CASE WHEN available=1 THEN 0 ELSE 1 END WHERE id=?",
-        (session["doctor_id"],)
-    )
-    db.commit()
-    db.close()
-    return redirect(url_for("doctor_dashboard"))
+
 
 if __name__ == "__main__":
     app.run(debug=False)

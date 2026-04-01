@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Patient Records</title>
+<style>
+body{ font-family:Arial; margin:0; background:#f4f6f9; }
+header{ background:#0d6efd; color:white; padding:20px; text-align:center; }
+.container{ max-width:860px; margin:40px auto; padding:0 20px; }
+h2{ color:#0d6efd; margin-bottom:20px; }
+.search-bar{ margin-bottom:18px; }
+.search-bar input{
+  padding:10px 14px; width:280px; border-radius:6px;
+  border:1px solid #ccc; font-size:14px;
+}
+table{ width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+th{ background:#0d6efd; color:white; padding:14px 16px; text-align:left; }
+td{ padding:13px 16px; border-bottom:1px solid #e9ecef; font-size:14px; }
+tr:last-child td{ border-bottom:none; }
+tr:nth-child(even) td{ background:#f8f9fa; }
+tr.hidden-row{ display:none; }
+.no-data{ text-align:center; padding:40px; color:#6c757d; font-size:15px; }
+.notes-cell{ max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.back{ display:inline-block; margin-bottom:20px; color:#0d6efd; text-decoration:none; font-weight:bold; }
+.back:hover{ text-decoration:underline; }
+.logout{ text-align:center; margin-top:40px; }
+.logout a{ color:red; font-weight:bold; text-decoration:none; }
+</style>
+</head>
+<body>
+<header>
+<h1>Doctor Dashboard</h1>
+<p>Hospital Management System</p>
+</header>
+<div class="container">
+<a class="back" href="/doctor/dashboard">&#8592; Back to Dashboard</a>
+<h2>Patient Records</h2>
+{% if records %}
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Search by patient name..." oninput="filterTable()">
+</div>
+<table id="recordsTable">
+  <tr>
+    <th>#</th>
+    <th>Patient Name</th>
+    <th>Visit Date</th>
+    <th>Diagnosis</th>
+    <th>Notes / Prescription</th>
+  </tr>
+  {% for r in records %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ r['patient_name'] }}</td>
+    <td>{{ r['visit_date'] }}</td>
+    <td>{{ r['diagnosis'] }}</td>
+    <td class="notes-cell" title="{{ r['notes'] }}">{{ r['notes'] or '—' }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="no-data">No patient visit records found.</div>
+{% endif %}
+</div>
+<div class="logout"><a href="/logout">Logout</a></div>
+<script>
+function filterTable(){
+  var q = document.getElementById('searchInput').value.toLowerCase();
+  var rows = document.querySelectorAll('#recordsTable tr:not(:first-child)');
+  rows.forEach(function(row){
+    var name = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+    row.classList.toggle('hidden-row', !name.includes(q));
+  });
+}
+</script>
+</body>
+</html>
