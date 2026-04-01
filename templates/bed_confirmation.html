@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bed Booking</title>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#2e7bd6,#5fa8ff);
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.confirm-box{
+    background:white;
+    padding:40px;
+    border-radius:10px;
+    text-align:center;
+    width:380px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.2);
+}
+h2{ color:#1f5fbf; }
+.detail{ margin:8px 0; font-size:15px; color:#444; }
+button{
+    margin-top:20px;
+    padding:10px 20px;
+    background:#1f5fbf;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:16px;
+}
+button:hover{ background:#174a96; }
+.fail{ color:#dc3545; }
+</style>
+</head>
+<body>
+<div class="confirm-box">
+{% if success %}
+  <h2>Bed Booked &#9989;</h2>
+  <p class="detail">{{ message }}</p>
+  <p class="detail"><strong>Ward:</strong> {{ ward }}</p>
+  <p class="detail"><strong>Admission Date:</strong> {{ admission_date }}</p>
+{% else %}
+  <h2 class="fail">Booking Failed &#10060;</h2>
+  <p class="detail">{{ message }}</p>
+{% endif %}
+<a href="/patient/dashboard"><button>Back to Dashboard</button></a>
+</div>
+</body>
+</html>

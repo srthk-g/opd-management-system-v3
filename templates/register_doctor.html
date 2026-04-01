@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Doctor Registration</title>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#2e7bd6,#5fa8ff);
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.register-box{
+    background:white;
+    padding:40px;
+    width:350px;
+    border-radius:10px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.2);
+}
+.register-box h2{ text-align:center; margin-bottom:25px; color:#1f5fbf; }
+label{ font-weight:bold; display:block; margin-bottom:5px; }
+input{
+    width:100%; padding:10px; margin-bottom:15px;
+    border-radius:5px; border:1px solid #ccc; box-sizing:border-box;
+}
+button{
+    width:100%; padding:12px; background:#1f5fbf;
+    border:none; color:white; font-size:16px; border-radius:5px; cursor:pointer;
+}
+button:hover{ background:#174a96; }
+.login-link{ text-align:center; margin-top:15px; }
+.login-link a{ text-decoration:none; color:#1f5fbf; }
+.back{ display:block; text-align:center; margin-top:15px; color:#1f5fbf; text-decoration:none; }
+.error{ color:red; font-size:13px; margin-bottom:10px; text-align:left; }
+</style>
+</head>
+<body>
+<div class="register-box">
+<h2>Doctor Registration</h2>
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+<form method="POST" action="/register/doctor" onsubmit="return validatePassword()">
+<label>Doctor ID</label>
+<input type="text" name="doctor_id" placeholder="e.g. DOC001" required>
+<label>Doctor Name</label>
+<input type="text" name="name" placeholder="Enter your Full Name" required>
+<label>Specialty</label>
+<input type="text" name="specialty" placeholder="Enter your Specialty" required>
+<label>Password</label>
+<input type="password" id="password" name="password" placeholder="Enter your Password" required>
+<label>Re-Enter Password</label>
+<input type="password" id="confirm_password" placeholder="Re-Enter Password" required>
+<div id="error" class="error"></div>
+<button type="submit">Register</button>
+</form>
+<div class="login-link">
+Already registered?<br>
+<a href="/login/doctor">Login here</a>
+</div>
+<a class="back" href="/">&#8592; Back to Home</a>
+</div>
+<script>
+function validatePassword(){
+    var p = document.getElementById("password").value;
+    var c = document.getElementById("confirm_password").value;
+    if(p !== c){
+        document.getElementById("error").innerHTML = "Passwords do not match";
+        return false;
+    }
+    return true;
+}
+</script>
+</body>
+</html>

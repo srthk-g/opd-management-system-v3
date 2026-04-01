@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+body{ background:#F4F8FC; }
+
+.header{
+    background:#0B5ED7; color:white; padding:20px;
+    display:flex; justify-content:space-between; align-items:center;
+}
+.header h2{ font-weight:600; }
+.logout{
+    background:#20C997; border:none; padding:8px 15px;
+    color:white; border-radius:5px; cursor:pointer;
+}
+.logout:hover{ background:#17A589; }
+
+.container{ padding:30px; }
+
+.top-bar{ display:flex; justify-content:space-between; margin-bottom:20px; align-items:center; }
+.search{ padding:10px; width:250px; border-radius:6px; border:1px solid #ccc; }
+.add-btn{
+    padding:10px 15px; background:#20C997; color:white;
+    border:none; border-radius:6px; cursor:pointer;
+}
+.add-btn:hover{ background:#17A589; }
+
+/* Modal overlay */
+.modal-overlay{
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); z-index:100; justify-content:center; align-items:center;
+}
+.modal-overlay.active{ display:flex; }
+.modal{
+    background:white; padding:30px; border-radius:10px;
+    width:380px; box-shadow:0 8px 30px rgba(0,0,0,0.2);
+}
+.modal h3{ margin-bottom:20px; color:#0B5ED7; }
+.modal label{ display:block; margin-bottom:4px; font-size:13px; font-weight:600; }
+.modal input, .modal select{
+    width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;
+    margin-bottom:14px; font-size:14px; box-sizing:border-box;
+}
+.modal-btns{ display:flex; gap:10px; margin-top:4px; }
+.modal-btns button{ flex:1; padding:10px; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
+.btn-save{ background:#0B5ED7; color:white; }
+.btn-save:hover{ background:#0a58ca; }
+.btn-cancel{ background:#e9ecef; color:#333; }
+.btn-cancel:hover{ background:#dee2e6; }
+
+.table{
+    width:100%; border-collapse:collapse; background:white;
+    border-radius:10px; overflow:hidden; box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
+.table th, .table td{ padding:15px; text-align:left; }
+.table th{ background:#0B5ED7; color:white; }
+.table tr:nth-child(even){ background:#f2f6fb; }
+.table tr.hidden-row{ display:none; }
+
+.status{ padding:5px 10px; border-radius:15px; font-size:12px; color:white; }
+.in-stock{ background:#20C997; }
+.low-stock{ background:#FFC107; color:black; }
+.out-stock{ background:#DC3545; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h2>&#128138; Inventory Dashboard</h2>
+  <button class="logout" onclick="window.location.href='/logout'">Logout</button>
+</div>
+
+<div class="container">
+  <div class="top-bar">
+    <input class="search" type="text" id="searchInput" placeholder="Search medicine..." oninput="filterTable()">
+    <button class="add-btn" onclick="openModal()">+ Add Item</button>
+  </div>
+
+  <table class="table" id="invTable">
+    <tr>
+      <th>ID</th>
+      <th>Medicine Name</th>
+      <th>Quantity</th>
+      <th>Unit</th>
+      <th>Status</th>
+    </tr>
+    {% for item in items %}
+    <tr>
+      <td>{{ item['id'] }}</td>
+      <td>{{ item['name'] }}</td>
+      <td>{{ item['quantity'] }}</td>
+      <td>{{ item['unit'] }}</td>
+      <td>
+        {% if item['status'] == 'In Stock' %}
+          <span class="status in-stock">In Stock</span>
+        {% elif item['status'] == 'Low Stock' %}
+          <span class="status low-stock">Low Stock</span>
+        {% else %}
+          <span class="status out-stock">Out of Stock</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<!-- Add Item Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>Add New Item</h3>
+    <form method="POST" action="/inventory/add">
+      <label>Medicine / Item Name</label>
+      <input type="text" name="name" placeholder="e.g. Paracetamol 500mg" required>
+      <label>Quantity</label>
+      <input type="number" name="quantity" placeholder="0" min="0" required>
+      <label>Unit</label>
+      <select name="unit">
+        <option value="tablets">Tablets</option>
+        <option value="capsules">Capsules</option>
+        <option value="vials">Vials</option>
+        <option value="bags">Bags</option>
+        <option value="bottles">Bottles</option>
+        <option value="pairs">Pairs</option>
+        <option value="units">Units</option>
+        <option value="boxes">Boxes</option>
+      </select>
+      <div class="modal-btns">
+        <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn-save">Save Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openModal(){ document.getElementById('modalOverlay').classList.add('active'); }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('active'); }
+document.getElementById('modalOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeModal();
+});
+function filterTable(){
+    var q = document.getElementById('searchInput').value.toLowerCase();
+    var rows = document.querySelectorAll('#invTable tr:not(:first-child)');
+    rows.forEach(function(row){
+        var name = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+        row.classList.toggle('hidden-row', !name.includes(q));
+    });
+}
+</script>
+</body>
+</html>

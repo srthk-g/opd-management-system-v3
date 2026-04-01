@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Doctor Dashboard</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#f4f6f9;
+}
+
+header{
+background:#0d6efd;
+color:white;
+padding:20px;
+text-align:center;
+}
+
+.container{
+display:flex;
+justify-content:center;
+gap:30px;
+flex-wrap:wrap;
+margin-top:60px;
+}
+
+.card{
+background:white;
+width:220px;
+padding:25px;
+text-align:center;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card h3{
+margin-bottom:15px;
+}
+
+.btn{
+display:inline-block;
+padding:10px 20px;
+background:#0d6efd;
+color:white;
+text-decoration:none;
+border-radius:5px;
+font-weight:bold;
+}
+
+.btn:hover{
+background:#0a58ca;
+}
+
+.logout{
+text-align:center;
+margin-top:50px;
+}
+
+.logout a{
+color:red;
+font-weight:bold;
+text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+<h1>Doctor Dashboard</h1>
+<p>Hospital Management System</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h3>View Appointments</h3>
+<a class="btn" href="/appointments">Open</a>
+</div>
+
+<div class="card">
+<h3>Add Patient Visit</h3>
+<a class="btn" href="/add_visit">Open</a>
+</div>
+
+<div class="card">
+<h3>Patient Records</h3>
+<a class="btn" href="/appointments">Open</a>
+</div>
+
+</div>
+
+<div class="logout">
+<a href="/logout">Logout</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Inventory Manager Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+body{ height:100vh; display:flex; justify-content:center; align-items:center; background:linear-gradient(135deg,#0B5ED7,#5FA8FF); }
+.login-box{ background:#ffffff; padding:35px; width:340px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.2); text-align:center; }
+.login-box h2{ margin-bottom:25px; color:#0B5ED7; font-weight:600; }
+.input-group{ position:relative; margin-bottom:18px; }
+.input-group input{ width:100%; padding:12px; border-radius:8px; border:1px solid #ccc; outline:none; font-size:14px; box-sizing:border-box; }
+.input-group input:focus{ border-color:#0B5ED7; }
+button{ width:100%; padding:12px; background:#20C997; border:none; color:white; font-size:15px; border-radius:8px; cursor:pointer; font-weight:600; transition:0.3s; }
+button:hover{ background:#17A589; transform:scale(1.03); }
+a{ text-decoration:none; color:#0B5ED7; font-size:14px; }
+.back{ display:block; margin-top:15px; }
+.error{ color:red; font-size:13px; text-align:left; margin-bottom:10px; }
+</style>
+</head>
+<body>
+<div class="login-box">
+<h2>&#128138; Inventory Manager Login</h2>
+<form method="POST" action="/login/inventory">
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+<div class="input-group">
+<input type="text" name="manager_id" placeholder="Manager ID" required>
+</div>
+<div class="input-group">
+<input type="password" name="password" placeholder="Password" required>
+</div>
+<button type="submit">Login</button>
+</form>
+<a class="back" href="/">&#8592; Back to Home</a>
+</div>
+</body>
+</html>
