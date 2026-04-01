@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "opd_secret_key_change_in_prod")
 
 # Always resolve DB relative to current working directory (where gunicorn is launched)
-DB_PATH = os.path.join(os.getcwd(), "hospital.db")
+DB_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "hospital.db")
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
