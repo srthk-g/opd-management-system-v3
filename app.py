@@ -273,7 +273,19 @@ def inventory_add():
 def logout():
     session.clear()
     return redirect(url_for("home"))
-
+    
+@app.route("/doctor/toggle-availability", methods=["POST"])
+def toggle_availability():
+    if "doctor_id" not in session:
+        return redirect(url_for("login_doctor"))
+    db = get_db()
+    db.execute(
+        "UPDATE doctors SET available = CASE WHEN available=1 THEN 0 ELSE 1 END WHERE id=?",
+        (session["doctor_id"],)
+    )
+    db.commit()
+    db.close()
+    return redirect(url_for("doctor_dashboard"))
 
 if __name__ == "__main__":
     app.run(debug=False)
